@@ -1,28 +1,15 @@
-import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Home from "./pages/Home";
 
 function App() {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    fetch("http://localhost:5000/api/test")
-      .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
-
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Full Stack Test</h1>
-
-      {!data ? (
-        <p>Loading backend data...</p>
-      ) : (
-        <>
-          <h2>{data.message}</h2>
-          <p>{data.time}</p>
-        </>
-      )}
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+    </Routes>
   );
 }
 
