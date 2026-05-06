@@ -3,11 +3,13 @@ const cors = require("cors");
 require("dotenv").config();
 const authRoutes = require("./routes/auth");
 const app = express();
+const aiRoutes = require("./routes/ai");
 
 // middleware
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 // test route
 app.get("/", (req, res) => {
