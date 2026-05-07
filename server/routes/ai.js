@@ -1,35 +1,38 @@
 const express = require("express");
 const router = express.Router();
-const axios = require("axios");
+const OpenAI = require("openai");
 
+// GROQ 
+const client = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+});
+
+/**
+ * QUIZ GENERATOR (GROQ)
+ */
 router.post("/quiz", async (req, res) => {
   const { topic } = req.body;
 
   try {
-    const response = await axios.post(
-  `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Create a short quiz about ${topic}. Give 5 multiple choice questions with answers.`
-              }
-            ]
-          }
-        ]
-      }
-    );
+    const completion = await client.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        {
+          role: "user",
+          content: `Create a short quiz about ${topic}. Give 5 multiple choice questions with answers.`
+        }
+      ]
+    });
 
-    const text =
-      response.data.candidates[0].content.parts[0].text;
+    const text = completion.choices[0].message.content;
 
     res.json({ quiz: text });
 
   } catch (err) {
-  console.error("FULL ERROR:", err.response?.data || err.message);
-  res.status(500).json({ error: err.response?.data || err.message });
-}
+    console.error("Groq error:", err.response?.data || err.message);
+    res.status(500).json({ error: "AI request failed" });
+  }
 });
 
 module.exports = router;
