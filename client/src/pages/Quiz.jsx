@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Quiz Parser 
-
+// Quiz Parser
 function parseQuiz(text) {
   const questions = [];
   const blocks = text.split("Question ").slice(1);
@@ -34,32 +34,36 @@ function parseQuiz(text) {
   return questions;
 }
 
-// Main Component
-
 export default function Quiz() {
+  const navigate = useNavigate();
+
   const [topic, setTopic] = useState("");
   const [quizData, setQuizData] = useState([]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const generateQuiz = async () => {
     setLoading(true);
     setFinished(false);
-    setShowLeaderboard(false);
     setScore(0);
     setIndex(0);
 
-    const res = await fetch("http://localhost:5000/api/ai/quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic }),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/ai/quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ topic }),
+      });
 
-    const data = await res.json();
-    setQuizData(parseQuiz(data.quiz));
+      const data = await res.json();
+      setQuizData(parseQuiz(data.quiz));
+    } catch (err) {
+      console.error(err);
+    }
 
     setLoading(false);
   };
@@ -75,65 +79,119 @@ export default function Quiz() {
 
     if (next >= quizData.length) {
       setFinished(true);
-      setShowLeaderboard(true);
     } else {
       setIndex(next);
     }
   };
 
-  /* fake leaderboard */
-  const leaderboard = [
-    { name: "You", score },
-    { name: "AI Bot", score: Math.max(score - 1, 0) },
-    { name: "Player 2", score: Math.max(score - 2, 0) },
-    { name: "Pro Gamer", score: quizData.length },
-  ];
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const progress =
+    quizData.length > 0
+      ? ((index + (finished ? 1 : 0)) / quizData.length) * 100
+      : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-purple-800 to-indigo-900 text-white flex flex-col items-center p-6">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-950 via-violet-900 to-indigo-950 text-white flex flex-col items-center px-6 py-10">
 
-      {/* header */}
-      <h1 className="text-5xl font-extrabold mb-2">Quiz Battle</h1>
-      <p className="text-purple-200 mb-6">AI Quiz Game</p>
+      
+      <div className="absolute top-0 left-0 w-96 h-96 bg-fuchsia-500 opacity-20 blur-3xl rounded-full" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 opacity-20 blur-3xl rounded-full" />
 
-      {/* input */}
-      <div className="w-full max-w-xl bg-white/10 backdrop-blur-xl p-6 rounded-3xl border border-white/20">
+      {/* TOP NAVigation */}
+      <div className="w-full max-w-5xl flex justify-between items-center mb-10 z-10">
+        <div>
+          <h1 className="text-5xl font-black tracking-tight">
+            Quizopolis
+          </h1>
+
+          <p className="text-purple-200 mt-1">
+            AI-powered Quizzes
+          </p>
+        </div>
+
+        <button
+          onClick={logout}
+          className="bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-3 rounded-2xl font-semibold backdrop-blur-xl transition-all duration-200"
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Quiz creation card */}
+      <div className="w-full max-w-2xl bg-white/10 border border-white/20 backdrop-blur-2xl rounded-[32px] p-8 shadow-2xl z-10">
+
+        <h2 className="text-3xl font-bold mb-2">
+          Create a Quiz
+        </h2>
+
+        <p className="text-purple-200 mb-6">
+          Enter any topic and instantly generate a quiz with AI.
+        </p>
+
         <input
-          className="w-full p-4 rounded-2xl bg-white/20 placeholder-purple-200"
-          placeholder="Enter topic..."
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
+          placeholder="Try: JavaScript, Anime, Space, Biology..."
+          className="w-full p-5 rounded-2xl bg-white/10 border border-white/10 placeholder-purple-200 outline-none focus:ring-4 focus:ring-purple-400 text-lg"
         />
 
         <button
           onClick={generateQuiz}
-          className="mt-4 w-full bg-purple-500 hover:bg-purple-400 py-3 rounded-2xl font-bold"
+          disabled={loading || !topic}
+          className="mt-5 w-full bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 py-4 rounded-2xl font-bold text-lg shadow-xl disabled:opacity-50"
         >
-          {loading ? "Generating..." : "Start Quiz"}
+          {loading ? "Generating Quiz..." : "Start Quiz"}
         </button>
       </div>
 
-      {/* game */}
+      {/* For when quiz is active */}
       {quizData.length > 0 && !finished && (
-        <div className="mt-10 w-full max-w-2xl">
-          <div className="text-center mb-4">
-            <p>Score: {score}</p>
-            <p>Question {index + 1} / {quizData.length}</p>
+        <div className="w-full max-w-3xl mt-10 z-10">
+
+          {/* Scoring and progression */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-lg font-semibold">
+              Score: {score}
+            </div>
+
+            <div className="text-purple-200">
+              Question {index + 1} / {quizData.length}
+            </div>
           </div>
 
-          <div className="bg-white/10 p-6 rounded-3xl border border-white/20">
-            <h2 className="text-xl font-bold mb-6">
+          {/* Progress bar */}
+          <div className="w-full h-4 bg-white/10 rounded-full overflow-hidden mb-6">
+            <div
+              className="h-full bg-gradient-to-r from-pink-500 to-purple-400 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* Question card */}
+          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] p-8 shadow-2xl">
+
+            <h2 className="text-3xl font-bold mb-8 leading-snug">
               {quizData[index].question}
             </h2>
 
-            <div className="grid gap-3">
+            <div className="grid gap-4">
               {quizData[index].options.map((opt) => (
                 <button
                   key={opt.key}
                   onClick={() => handleAnswer(opt.key)}
-                  className="bg-purple-600 hover:bg-purple-500 p-4 rounded-2xl text-left font-bold"
+                  className="group bg-gradient-to-r from-purple-700/70 to-fuchsia-700/60 hover:from-fuchsia-600 hover:to-purple-500 border border-white/10 p-5 rounded-2xl text-left transition-all duration-200 hover:scale-[1.02] shadow-lg"
                 >
-                  {opt.key}. {opt.text}
+                  <span className="font-black mr-3 text-pink-200">
+                    {opt.key}.
+                  </span>
+
+                  <span className="font-semibold text-lg">
+                    {opt.text}
+                  </span>
                 </button>
               ))}
             </div>
@@ -141,25 +199,22 @@ export default function Quiz() {
         </div>
       )}
 
-      {/* leaderboard */}
-      {showLeaderboard && (
-        <div className="mt-10 w-full max-w-xl bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20">
-          <h2 className="text-3xl font-bold text-center mb-6">
-            🏆 Leaderboard
+      {/* Finished screen */}
+      {finished && (
+        <div className="mt-10 w-full max-w-2xl bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] p-10 text-center shadow-2xl z-10">
+
+          <div className="text-7xl mb-4">🏆</div>
+
+          <h2 className="text-4xl font-black mb-3">
+            Quiz Complete
           </h2>
 
-          <div className="space-y-3">
-            {leaderboard
-              .sort((a, b) => b.score - a.score)
-              .map((player, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between bg-purple-600/40 p-4 rounded-2xl"
-                >
-                  <span>{i + 1}. {player.name}</span>
-                  <span className="font-bold">{player.score}</span>
-                </div>
-              ))}
+          <p className="text-xl text-purple-200 mb-8">
+            You scored
+          </p>
+
+          <div className="text-7xl font-black bg-gradient-to-r from-pink-400 to-purple-300 bg-clip-text text-transparent mb-8">
+            {score} / {quizData.length}
           </div>
 
           <button
@@ -167,17 +222,15 @@ export default function Quiz() {
               setQuizData([]);
               setTopic("");
               setFinished(false);
-              setShowLeaderboard(false);
               setIndex(0);
               setScore(0);
             }}
-            className="mt-6 w-full bg-purple-500 hover:bg-purple-400 py-3 rounded-2xl font-bold"
+            className="w-full bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:scale-[1.02] transition-all duration-200 py-4 rounded-2xl font-bold text-lg shadow-xl"
           >
             Play Again
           </button>
         </div>
       )}
-
     </div>
   );
 }
