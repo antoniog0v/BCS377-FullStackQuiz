@@ -14,14 +14,14 @@ function Home() {
 
         {/* Title */}
         <h1 className="text-5xl font-black text-white mb-4">
-          AI Quiz Battle
+          Quizopolis
         </h1>
 
         {/* Description */}
         <p className="text-purple-200 text- mb-8 leading-relaxed">
           Generate interactive quizzes instantly using AI.  
           Pick a topic, answer questions one by one, and test your knowledge in a
-          clean, game-style experience by Antonio Villani
+          clean, game-style experience created by Antonio Villani
         </p>
 
         {/* Logged in or not*/}

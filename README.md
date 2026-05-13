@@ -27,6 +27,7 @@ The app is designed as a simple quiz game with a clean UI, progress tracking, sc
 - Live scoring system
 - Progress tracking bar
 - Final score screen with restart option
+- Global leaderboard system with totals points and ranking
 
 ### UI / UX
 - Purple-themed modern interface

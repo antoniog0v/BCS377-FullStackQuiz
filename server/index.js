@@ -1,15 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+console.log("JWT_SECRET loaded:", !!process.env.JWT_SECRET);
 const authRoutes = require("./routes/auth");
 const app = express();
 const aiRoutes = require("./routes/ai");
+const leaderboardRoutes = require("./routes/leaderboard");
 
 // middleware
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 
 // test route
 app.get("/", (req, res) => {
@@ -19,7 +22,7 @@ app.get("/", (req, res) => {
 // backend api route test
 app.get("/api/test", (req, res) => {
   res.json({
-    message: "Hello from backend 🚀",
+    message: "",
     time: new Date().toISOString()
   });
 });

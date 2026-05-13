@@ -6,7 +6,7 @@ const supabase = require("../db/supabase");
 const router = express.Router();
 
 /**
- * SIGNUP!!!!
+ * SIGNUP
  */
 router.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
@@ -31,7 +31,7 @@ router.post("/signup", async (req, res) => {
 });
 
 /**
- * LOGIN!!!!!
+ * LOGIN
  */
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -47,10 +47,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const validPassword = await bcrypt.compare(
-      password,
-      data.password_hash
-    );
+    const validPassword = await bcrypt.compare(password, data.password_hash);
 
     if (!validPassword) {
       return res.status(401).json({ message: "Invalid password" });
@@ -62,7 +59,15 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.json({ token, user: { id: data.id, email: data.email } });
+    res.json({
+      token,
+      user: {
+        id: data.id,
+        email: data.email,
+        username: data.username, // FIX: added so frontend can match leaderboard entries
+      },
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
