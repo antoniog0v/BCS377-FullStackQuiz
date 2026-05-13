@@ -8,6 +8,7 @@ const router = express.Router();
 /**
  * SIGNUP
  */
+
 router.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -33,6 +34,7 @@ router.post("/signup", async (req, res) => {
 /**
  * LOGIN
  */
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -64,7 +66,7 @@ router.post("/login", async (req, res) => {
       user: {
         id: data.id,
         email: data.email,
-        username: data.username, // FIX: added so frontend can match leaderboard entries
+        username: data.username, 
       },
     });
 

@@ -7,6 +7,7 @@ const router = express.Router();
 /**
  * ADD POINTS
  */
+
 router.post("/add-points", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -17,7 +18,7 @@ router.post("/add-points", async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // FIX: was `const { score } = Number(...)` which always gave undefined
+    
     const score = Number(req.body.score);
 
     if (isNaN(score) || score < 0) {
@@ -67,6 +68,7 @@ router.post("/add-points", async (req, res) => {
 /**
  * GET LEADERBOARD
  */
+
 router.get("/", async (req, res) => {
   try {
     const { data, error } = await supabase
