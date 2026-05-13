@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API = import.meta.env.VITE_API_URL;
+
 function parseQuiz(text) {
   const questions = [];
   const blocks = text.split("Question ").slice(1);
@@ -56,7 +58,7 @@ export default function Quiz() {
     resetLeaderboard();
 
     try {
-      const res = await fetch("http://localhost:5000/api/ai/quiz", {
+      const res = await fetch(`${API}/api/ai/quiz`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic }),
@@ -87,7 +89,7 @@ export default function Quiz() {
       try {
         const token = localStorage.getItem("token");
 
-        const pointsRes = await fetch("http://localhost:5000/api/leaderboard/add-points", {
+        const pointsRes = await fetch(`${API}/api/leaderboard/add-points`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -104,7 +106,7 @@ export default function Quiz() {
         const pointsData = await pointsRes.json();
         setTotalPoints(pointsData.total_points);
 
-        const lbRes = await fetch("http://localhost:5000/api/leaderboard", {
+        const lbRes = await fetch(`${API}/api/leaderboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -284,9 +286,8 @@ export default function Quiz() {
                 Global Leaderboard
               </h2>
 
-              {/* Column headers */}
               <div className="flex justify-between items-center px-4 mb-3">
-                <span className="text-purple-400 text-xs font-bold uppercase tracking-widest">Player </span>
+                <span className="text-purple-400 text-xs font-bold uppercase tracking-widest">Player</span>
                 <span className="text-purple-400 text-xs font-bold uppercase tracking-widest">Points</span>
               </div>
 
@@ -304,7 +305,6 @@ export default function Quiz() {
                           : "bg-white/5 border-white/5"
                       }`}
                     >
-                      {/* Left: rank + name */}
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-sm font-black text-purple-400 w-6 shrink-0">
                           {medal ?? `#${player.rank}`}
@@ -318,8 +318,6 @@ export default function Quiz() {
                           )}
                         </span>
                       </div>
-
-                      {/* Right: points */}
                       <span className={`font-black text-lg shrink-0 ml-4 ${isMe ? "text-pink-300" : "text-purple-300"}`}>
                         {player.total_points ?? 0}
                       </span>

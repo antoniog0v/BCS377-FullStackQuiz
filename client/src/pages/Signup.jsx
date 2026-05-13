@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
+const API = import.meta.env.VITE_API_URL;
+
 function Signup() {
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
@@ -32,7 +34,7 @@ function Signup() {
     if (validationError) { setError(validationError); return; }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      const res = await fetch(`${API}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
